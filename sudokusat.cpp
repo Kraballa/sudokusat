@@ -6,7 +6,7 @@ int getIndex(int x, int y, int i, int gridSize)
     return 1 + x + y * gridSize + i * gridSize * gridSize;
 }
 
-int main(char **args, int argv)
+int main(int argv, char **args)
 {
 
     if (argv != 2)
