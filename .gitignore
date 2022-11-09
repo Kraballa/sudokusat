@@ -1,0 +1,4 @@
+build/*
+cadical/*
+main.exe
+*.o
