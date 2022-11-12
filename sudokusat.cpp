@@ -26,9 +26,9 @@ int main(int argv, char **args)
     return 0;
 }
 
-int generateFormula(int gridSize)
+int generateFormula(int dim)
 {
-
+    int gridSize = dim * dim;
     //(x1 | x2) ^ (-x3 | x5)
     // solver.add(1)
     // solver.add(2)
@@ -63,6 +63,133 @@ int generateFormula(int gridSize)
             }
         }
     }*/
+
+    // basic encoding
+
+    // at least one number in each entry
+    
+    for (int x = 0; x < gridSize; x++) {
+        for (int y = 0; y < gridSize; y++) {
+            for (int z = 0; z < gridSize; z++) {
+                solver->add(getIndex(x, y, z, gridSize));
+            }
+            solver->add(0);   
+        }   
+    }
+    solver->add(0);
+
+    // each number at most once in each row
+
+    for (int y = 0; y < gridSize; y++) {
+        for (int z = 0; z < gridSize; z++) {
+            for (int x = 0; x < gridSize - 1; x++) {
+                for(int i = x+1; i < gridSize; i++) {
+                    solver->add(-1 * getIndex(x, y, z, gridSize));
+                    solver->add(-1 * getIndex(i, y, z, gridSize));
+                    solver->add(0);
+                }
+            } 
+        }   
+    }
+    solver->add(0);
+
+    // at most once in each column
+
+    for (int x = 0; x < gridSize; x++) {
+        for (int z = 0; z < gridSize; z++) {
+            for (int y = 0; y < gridSize - 1; y++) {
+                for(int i = y+1; i < gridSize; i++) {
+                    solver->add(-1 * getIndex(x, y, z, gridSize));
+                    solver->add(-1 * getIndex(x, i, z, gridSize));
+                    solver->add(0);
+                }
+            } 
+        }   
+    }
+    solver->add(0);
+
+    // at most once in each 3x3
+
+    for (int z = 0; z < gridSize; z++) {
+        for (int i = 0; i < dim; i++) {
+            for(int j = 0; j < dim; j++) {
+                for(int x = 0; x > dim; x++) {
+                    for(int y = 0; y < dim; y++) {
+                        for(int k = y+1; k < dim; k++) {
+                            solver->add(-1*getIndex(3*i+x, 3*j+y, z, gridSize));
+                            solver->add(-1*getIndex(3*i+x, 3*j+k, z, gridSize));
+                            solver->add(0);
+                        }
+                    }
+                }    
+            }
+        }
+    }
+    solver->add(0);
+
+    for (int z = 0; z < gridSize; z++) {
+        for (int i = 0; i < dim; i++) {
+            for(int j = 0; j < dim; j++) {
+                for(int x = 0; x > dim; x++) {
+                    for(int y = 0; y < dim; y++) {
+                        for(int k = y+1; k < dim; k++) {
+                            for(int l = 0; l < dim; l++) {
+                            solver->add(-1*getIndex(3*i+x, 3*j+y, z, gridSize));
+                            solver->add(-1*getIndex(3*i+k, 3*j+l, z, gridSize));
+                            solver->add(0);
+                            }
+                        }
+                    }
+                }    
+            }
+        }
+    }
+    solver->add(0);
+
+/*     // advanced encoding
+    // at most one number in each entry
+    for (int x = 0; x < gridSize; x++) {
+        for (int y = 0; y < gridSize; y++) {
+            for (int z = 0; z < gridSize - 1; z++) {
+                for (int i = z + 1; x < gridSize; i++) {
+                    solver->add(-1 * getIndex(x, y, z, gridSize));
+                    solver->add(-1 * getIndex(x, y, i, gridSize));
+                    solver->add(0);
+                } 
+            }   
+        }   
+    }
+    solver->add(0);
+
+    // at least once in each row
+
+
+    for (int y = 0; y < gridSize; y++) {
+        for (int z = 0; z < gridSize; z++) {
+            for (int x = 0; x < gridSize; x++) {
+                solver->add(getIndex(x, y, z, gridSize));
+            }
+           solver->add(0);
+        }   
+    }  
+    solver->add(0); 
+
+    // at least once in each column
+
+    for (int x = 0; x < gridSize; x++) {
+        for (int z = 0; z < gridSize; z++) {
+            for (int y = 0; y < gridSize; y++) {
+                solver->add(getIndex(x, y, z, gridSize));
+            }
+           solver->add(0);
+        }   
+    } 
+    solver->add(0);  
+    // at least once in each 3x3 grid
+
+    for (int z = 0; z < gridSize; z++) {
+        // TODO
+    } */
 }
 
 // load in the given numbers of the problem
