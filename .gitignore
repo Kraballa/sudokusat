@@ -1,5 +1,5 @@
 build/*
-cadical/*
+src/*
 main.exe
 *.o
 .vscode/*
