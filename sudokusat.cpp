@@ -20,7 +20,7 @@ void loadProblem(std::fstream &file, CaDiCaL::Solver *solver, int gridSize)
             file >> val;
             if (val != 0)
             {
-                int idx = getIndex(x, y, val-1, gridSize);
+                int idx = getIndex(x, y, val - 1, gridSize);
                 // assert idx as unit literal
                 solver->add(idx);
                 solver->add(0);
@@ -42,7 +42,7 @@ void printSolution(CaDiCaL::Solver *solver, int gridSize)
             {
                 if (solver->val(getIndex(x, y, z, gridSize)) > 0)
                 {
-                    std::cout << z+1 << " ";
+                    std::cout << z + 1 << " ";
                     break;
                 }
             }
@@ -142,14 +142,14 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
         {
             for (int j = 0; j < dim; j++)
             {
-                for (int x = 0; x > dim; x++)
+                for (int x = 0; x < dim; x++)
                 {
                     for (int y = 0; y < dim; y++)
                     {
                         for (int k = y + 1; k < dim; k++)
                         {
-                            solver->add(-1 * getIndex(3 * i + x, 3 * j + y, z, gridSize));
-                            solver->add(-1 * getIndex(3 * i + x, 3 * j + k, z, gridSize));
+                            solver->add(-1 * getIndex(dim * i + x, dim * j + y, z, gridSize));
+                            solver->add(-1 * getIndex(dim * i + x, dim * j + k, z, gridSize));
                             solver->add(0);
                         }
                     }
@@ -158,22 +158,22 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
         }
     }
 
-    for (int z = 0; z < gridSize; z++)
+    for (int z = 0; z < gridSize; z++) // zahl
     {
-        for (int i = 0; i < dim; i++)
+        for (int i = 0; i < dim; i++) // box x
         {
-            for (int j = 0; j < dim; j++)
+            for (int j = 0; j < dim; j++) // box y
             {
-                for (int x = 0; x > dim; x++)
+                for (int x = 0; x < dim; x++) // x
                 {
-                    for (int y = 0; y < dim; y++)
+                    for (int y = 0; y < dim; y++) // y
                     {
                         for (int k = y + 1; k < dim; k++)
                         {
                             for (int l = 0; l < dim; l++)
                             {
-                                solver->add(-1 * getIndex(3 * i + x, 3 * j + y, z, gridSize));
-                                solver->add(-1 * getIndex(3 * i + k, 3 * j + l, z, gridSize));
+                                solver->add(-1 * getIndex(dim * i + x, dim * j + y, z, gridSize));
+                                solver->add(-1 * getIndex(dim * i + k, dim * j + l, z, gridSize));
                                 solver->add(0);
                             }
                         }
@@ -183,50 +183,58 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
         }
     }
 
-    /*     // advanced encoding
-        // at most one number in each entry
-        for (int x = 0; x < gridSize; x++) {
-            for (int y = 0; y < gridSize; y++) {
-                for (int z = 0; z < gridSize - 1; z++) {
-                    for (int i = z + 1; x < gridSize; i++) {
-                        solver->add(-1 * getIndex(x, y, z, gridSize));
-                        solver->add(-1 * getIndex(x, y, i, gridSize));
-                        solver->add(0);
-                    }
+    /*
+    // at most one number in each entry
+    for (int x = 0; x < gridSize; x++)
+    {
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int z = 0; z < gridSize - 1; z++)
+            {
+                for (int i = z + 1; x < gridSize; i++)
+                {
+                    solver->add(-1 * getIndex(x, y, z, gridSize));
+                    solver->add(-1 * getIndex(x, y, i, gridSize));
+                    solver->add(0);
                 }
             }
         }
-        solver->add(0);
+    }
 
-        // at least once in each row
+    // at least once in each row
 
-
-        for (int y = 0; y < gridSize; y++) {
-            for (int z = 0; z < gridSize; z++) {
-                for (int x = 0; x < gridSize; x++) {
-                    solver->add(getIndex(x, y, z, gridSize));
-                }
-               solver->add(0);
+    for (int y = 0; y < gridSize; y++)
+    {
+        for (int z = 0; z < gridSize; z++)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                solver->add(getIndex(x, y, z, gridSize));
             }
+            solver->add(0);
         }
-        solver->add(0);
+    }
 
-        // at least once in each column
+    // at least once in each column
 
-        for (int x = 0; x < gridSize; x++) {
-            for (int z = 0; z < gridSize; z++) {
-                for (int y = 0; y < gridSize; y++) {
-                    solver->add(getIndex(x, y, z, gridSize));
-                }
-               solver->add(0);
+    for (int x = 0; x < gridSize; x++)
+    {
+        for (int z = 0; z < gridSize; z++)
+        {
+            for (int y = 0; y < gridSize; y++)
+            {
+                solver->add(getIndex(x, y, z, gridSize));
             }
+            solver->add(0);
         }
-        solver->add(0);
-        // at least once in each 3x3 grid
+    }
 
-        for (int z = 0; z < gridSize; z++) {
-            // TODO
-        } */
+    /*
+    // at least once in each 3x3 grid
+
+    for (int z = 0; z < gridSize; z++) {
+        // TODO
+    } */
 }
 
 int main(int argc, char **argv)
