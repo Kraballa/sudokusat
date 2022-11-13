@@ -8,6 +8,13 @@ inline int getIndex(int x, int y, int i, int gridSize)
     return 1 + x + y * gridSize + i * gridSize * gridSize;
 }
 
+int getBlockNumber(int blockX, int blockY, int i, int blockIndex, int dim)
+{
+    int x = blockX * dim + blockIndex % dim;
+    int y = blockY * dim + blockIndex / dim;
+    return getIndex(x, y, i, dim * dim);
+}
+
 // load in the given numbers of the problem
 void loadProblem(std::fstream &file, CaDiCaL::Solver *solver, int gridSize)
 {
@@ -33,7 +40,6 @@ void loadProblem(std::fstream &file, CaDiCaL::Solver *solver, int gridSize)
 
 void printSolution(CaDiCaL::Solver *solver, int gridSize)
 {
-
     for (int y = 0; y < gridSize; y++)
     {
         for (int x = 0; x < gridSize; x++)
@@ -43,7 +49,6 @@ void printSolution(CaDiCaL::Solver *solver, int gridSize)
                 if (solver->val(getIndex(x, y, z, gridSize)) > 0)
                 {
                     std::cout << z + 1 << " ";
-                    break;
                 }
             }
         }
@@ -55,35 +60,7 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
 {
     int gridSize = dim * dim;
 
-    /*for (int row = 0; row < gridSize; row++)
-    {
-        for (int col = 0; col < gridSize; col++)
-        {
-            for (int num; num < gridSize; num++)
-            {
-                for (int mul : {-1, 1})
-                {
-                    int currIndex = getIndex(row, col, num, gridSize);
-                    for (int rowCnt = row; rowCnt < gridSize; rowCnt++)
-                    {
-                        solver.add(currIndex);
-                        solver.add(getIndex(rowCnt, col, num, gridSize));
-                    }
-                    for (int colCnt = col; colCnt < gridSize; colCnt++)
-                    {
-
-                    }
-                    for (int boxCnt = 0; boxCnt < gridSize; boxCnt++)
-                    {
-
-                    }
-                }
-            }
-        }
-    }*/
-
     // basic encoding
-
     // at least one number in each entry
 
     for (int x = 0; x < gridSize; x++)
@@ -138,45 +115,16 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
 
     for (int z = 0; z < gridSize; z++)
     {
-        for (int i = 0; i < dim; i++)
+        for (int blockX = 0; blockX < dim; blockX++)
         {
-            for (int j = 0; j < dim; j++)
+            for (int blockY = 0; blockY < dim; blockY++)
             {
-                for (int x = 0; x < dim; x++)
+                for (int blockIndex1 = 0; blockIndex1 < gridSize - 1; blockIndex1++)
                 {
-                    for (int y = 0; y < dim; y++)
-                    {
-                        for (int k = y + 1; k < dim; k++)
-                        {
-                            solver->add(-1 * getIndex(dim * i + x, dim * j + y, z, gridSize));
-                            solver->add(-1 * getIndex(dim * i + x, dim * j + k, z, gridSize));
-                            solver->add(0);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    for (int z = 0; z < gridSize; z++) // zahl
-    {
-        for (int i = 0; i < dim; i++) // box x
-        {
-            for (int j = 0; j < dim; j++) // box y
-            {
-                for (int x = 0; x < dim; x++) // x
-                {
-                    for (int y = 0; y < dim; y++) // y
-                    {
-                        for (int k = y + 1; k < dim; k++)
-                        {
-                            for (int l = 0; l < dim; l++)
-                            {
-                                solver->add(-1 * getIndex(dim * i + x, dim * j + y, z, gridSize));
-                                solver->add(-1 * getIndex(dim * i + k, dim * j + l, z, gridSize));
-                                solver->add(0);
-                            }
-                        }
+                    for(int blockIndex2 = blockIndex1 + 1; blockIndex2 < gridSize; blockIndex2++){
+                        solver->add(-getBlockNumber(blockX,blockY,z,blockIndex1,dim));
+                        solver->add(-getBlockNumber(blockX,blockY,z,blockIndex2,dim));
+                        solver->add(0);
                     }
                 }
             }
@@ -184,6 +132,8 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
     }
 
     /*
+    //EXTENDED ENCODING NOT WORKING
+    //Extended encoding
     // at most one number in each entry
     for (int x = 0; x < gridSize; x++)
     {
@@ -228,13 +178,11 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
             solver->add(0);
         }
     }
+    
 
     /*
     // at least once in each 3x3 grid
-
-    for (int z = 0; z < gridSize; z++) {
-        // TODO
-    } */
+    //TODO*/
 }
 
 int main(int argc, char **argv)
@@ -250,15 +198,13 @@ int main(int argc, char **argv)
     int dim;
     puzzle >> dim;
 
-    int GRID_SIZE = dim * dim;
-
-    std::cout << "sudoku size: " << GRID_SIZE << std::endl;
+    std::cout << "sudoku dimension: " << dim << std::endl;
 
     CaDiCaL::Solver *solver = new CaDiCaL::Solver;
 
     generateFormula(solver, dim);
 
-    loadProblem(puzzle, solver, GRID_SIZE);
+    loadProblem(puzzle, solver, dim * dim);
 
     solver->simplify(3);
     std::cout << "simplified" << std::endl;
@@ -266,7 +212,14 @@ int main(int argc, char **argv)
 
     solver->statistics();
 
-    std::cout << "solution: " << res << std::endl;
-    printSolution(solver, GRID_SIZE);
+    if (res == 10)
+    {
+        std::cout << "sat" << std::endl;
+        printSolution(solver, dim * dim);
+    }
+    else
+    {
+        std::cout << "unsat" << std::endl;
+    }
     return 0;
 }
