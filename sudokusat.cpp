@@ -56,7 +56,7 @@ void printSolution(CaDiCaL::Solver *solver, int gridSize)
     }
 }
 
-int generateFormula(CaDiCaL::Solver *solver, int dim)
+void generateFormula(CaDiCaL::Solver *solver, int dim)
 {
     int gridSize = dim * dim;
 
@@ -178,7 +178,7 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
             solver->add(0);
         }
     }
-    
+
 
     /*
     // at least once in each 3x3 grid
@@ -187,6 +187,7 @@ int generateFormula(CaDiCaL::Solver *solver, int dim)
 
 int main(int argc, char **argv)
 {
+    std::cout << "sudokusat v1" << std::endl;
     if (argc != 2)
     {
         std::cout << "missing problem parameter" << std::endl;
